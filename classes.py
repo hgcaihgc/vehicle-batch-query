@@ -89,6 +89,8 @@ class LoginAndSearch:
         # 定义需要查询结果的空列表
         contents = []
         particulars = []
+        vehicleNos_finished = []
+        vehicleNos_unfinished = []
         # 尝试连接的最大次数
         count_max = 10
         for i in range(vehicle_num):
@@ -103,18 +105,24 @@ class LoginAndSearch:
                     # 简化查询结果
                     content = simplify_content(content)
                     particular = get_particulars(content, cookie)
+                    vehicleNos_finished.append(vehicleNo)
                     break
                 # 获取异常
                 except requests.exceptions.RequestException:
                     count = count + 1
             else:
-                print("完犊子了！已经尝试{0.>2d}次连接了，请确保网络没有问题，并重试".format(count_max))
+                print("完犊子了！{0}已经尝试{1:>3d}次连接了".format(vehicleNo, count_max))
+                content = {'total': 0}
+                particular = {"total": 0, "rows": [], "errorMsg": "交通部服务无法查询到指定数据"}
+                # 在响应中添加车牌号码
+                content["vehicleNo"] = vehicleNo                
+                vehicleNos_unfinished.append(vehicleNo)
             contents.append(content)
             particulars.append(particular)
             # 输出进程信息
-            print('\r', "正在查询，进程为{0:>3d}/{1:>3d}, 进度为{2:>6.2f}%".format(i+1, vehicle_num, (i+1)*100/vehicle_num), end='', flush=True)
+            print('\r', "正在查询{0}，进程为{1:>3d}/{2:>3d}, 进度为{3:>6.2f}%".format(vehicleNo, i+1, vehicle_num, (i+1)*100/vehicle_num), end='', flush=True)
         print("\n")
-        return [contents, particulars]
+        return [contents, particulars, vehicleNos_finished, vehicleNos_unfinished]
 
     def search_by_vehicleNos_with_nonoperating(self):
         """从结果中筛选非营运的车辆"""

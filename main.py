@@ -17,7 +17,7 @@ get_vehicleNos = GetVehicleNos()
 vehicleNos = get_vehicleNos.get_vehicleNos_by_xlsx(target_mark)
 # 登录和查询
 login_and_search = LoginAndSearch(address, username, password, vehicleNos)
-[contents, particulars] = login_and_search.search_by_vehicleNos()
+[contents, particulars, vehicleNos_finished, vehicleNos_unfinished] = login_and_search.search_by_vehicleNos()
 # 结果输出
 output = OutPut(contents, particulars)
 output.output_new_xls()
