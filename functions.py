@@ -86,11 +86,11 @@ def get_provinceCode(vehicleNo):
     return provinceCode
 
 
-def search_by_vehicleNo(vehicleNo, cookie):
+def search_by_vehicleNo(vehicleNo, cookie, plateColor):
     """通过一个车牌号查询信息"""
     url = 'http://10.100.32.31:8138/SQS/overProvince/getResDirectory'
     plateColor_list = ['所有', '蓝色', '黄色', '黑色', '白色', '黄绿色', '渐变绿', '其他']
-    plateColorCode = str(plateColor_list.index("黄色"))
+    plateColorCode = str(plateColor_list.index(plateColor))
     params_dict = {"vehicleNo": vehicleNo, "plateColorCode": plateColorCode, "provinceCode": get_provinceCode(vehicleNo)}
     From_data={
         'params': str(params_dict),
