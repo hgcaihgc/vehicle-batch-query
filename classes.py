@@ -52,6 +52,7 @@ class LoginAndSearch:
 
     def get_cookie(self):
         """模拟登陆，获取cookie"""
+        print("="*100)
         print("开始登陆。")
         driver = webdriver.Chrome()  # 调用webdriver模块下的Chrome()类并赋值给变量driver        
         driver.implicitly_wait(5)  # 设置隐式等待时间5s        
@@ -71,6 +72,7 @@ class LoginAndSearch:
     def search_by_vehicleNos(self):
         """通过所有车牌号查询信息"""        
         cookie = self.get_cookie()  # 获取cookie信息
+        print("="*100)
         print("开始查询。")
         vehicle_num = len(self.vehicleNos)  # 获取车牌号码列表的长度，即车辆的总数
         vehicle_new = self.vehicleNos[:]  # 复制车牌号列表
@@ -135,6 +137,7 @@ class OutPut:
 
     def output_new_xls(self):
         """将最后结果输出到xlsx文件"""
+        print("="*100)
         print("开始写入")
         workbook = xlwt.Workbook()        
         sheet = workbook.add_sheet('结果', cell_overwrite_ok=True)  # 添加name为'结果'的sheet        
@@ -199,6 +202,7 @@ class OutPut:
 
     def output_old_xls(self, target_mark="预处理"):
         """将最后结果输出到原xls文件，只有在只有一个xls文件时才适用"""
+        print("="*100)
         print("开始写入")
         title = ['证件号码', '有效期至', '营运状态', '经营范围',
                  '发证机构', '业户名称', '经营许可证号', '有效期至',
