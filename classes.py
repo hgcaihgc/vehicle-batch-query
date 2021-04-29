@@ -98,6 +98,8 @@ class LoginAndSearch:
             count = 0
             # 提取第i个车牌号码
             vehicleNo = self.vehicleNos[i]
+            # 输出进程信息
+            print('\r', "正在查询{0}，进程为{1:>3d}/{2:>3d}, 进度为{3:>6.2f}%".format(vehicleNo, i+1, vehicle_num, (i+1)*100/vehicle_num), end='', flush=True)
             while count < count_max:
                 try:
                     # 通过车牌号码查询
@@ -106,22 +108,16 @@ class LoginAndSearch:
                     content = simplify_content(content)
                     particular = get_particulars(content, cookie)
                     vehicleNos_finished.append(vehicleNo)
+                    contents.append(content)
+                    particulars.append(particular)
                     break
                 # 获取异常
                 except requests.exceptions.RequestException:
                     count = count + 1
             else:
-                print("完犊子了！{0}已经尝试{1:>3d}次连接了".format(vehicleNo, count_max))
-                content = {'total': 0}
-                particular = {"total": 0, "rows": [], "errorMsg": "交通部服务无法查询到指定数据"}
-                # 在响应中添加车牌号码
-                content["vehicleNo"] = vehicleNo                
+                print("\n")
+                print("完犊子了！{0}已经尝试{1:>3d}次连接了".format(vehicleNo, count_max))                
                 vehicleNos_unfinished.append(vehicleNo)
-            contents.append(content)
-            particulars.append(particular)
-            # 输出进程信息
-            print('\r', "正在查询{0}，进程为{1:>3d}/{2:>3d}, 进度为{3:>6.2f}%".format(vehicleNo, i+1, vehicle_num, (i+1)*100/vehicle_num), end='', flush=True)
-        print("\n")
         return [contents, particulars, vehicleNos_finished, vehicleNos_unfinished]
 
     def search_by_vehicleNos_with_nonoperating(self):
@@ -152,9 +148,11 @@ class LoginAndSearch:
 class OutPut:
     """功能模块类：输出结果"""
 
-    def __init__(self, contents, particulars):
+    def __init__(self, contents, particulars, vehicleNos_finished, vehicleNos_unfinished):
         self.contents = contents
         self.particulars = particulars
+        self.vehicleNos_finished = vehicleNos_finished
+        self.vehicleNos_unfinished = vehicleNos_unfinished
 
     def output_new_xls(self):
         """将最后结果输出到xlsx文件"""
@@ -169,25 +167,42 @@ class OutPut:
         for i in range(contents_num):
             content = self.contents[i]
             particular = self.particulars[i]
+            # 输出进程信息
+            print('\r', "正在写入，进程为{0:>3d}/{1:>3d}, 进度为{2:>6.2f}%".format(i + 1, contents_num, (i + 1) * 100 / contents_num), end='', flush=True)
             if content['total'] > 0:
                 for count in range(content['total']):
                     # 在有certificateInfo信息的情况时
                     if 'certificateInfo' in content['rows'][count].keys():
                         if particular['total'] > 0:
-                            tr = [content['rows'][count]['vehicleNo'],
-                                  content['rows'][count]['certificateInfo'][0]['transCertificateCode'],
-                                  content['rows'][count]['certificateInfo'][0]['certificateExpireDate'],
-                                  content['rows'][count]['businessState'],
-                                  content['rows'][count]['certificateInfo'][0]['businessScopeDesc'],
-                                  content['rows'][count]['certificateInfo'][0]['transCertificateGrantOrgan'],
-                                  particular['rows'][0]['ownerName'],
+                            if 'certificateInfo' in particular['rows'][0].keys():
+                                tr = [content['rows'][count]['vehicleNo'],
+                                    content['rows'][count]['certificateInfo'][0]['transCertificateCode'],
+                                    content['rows'][count]['certificateInfo'][0]['certificateExpireDate'],
+                                    content['rows'][count]['businessState'],
+                                    content['rows'][count]['certificateInfo'][0]['businessScopeDesc'],
+                                    content['rows'][count]['certificateInfo'][0]['transCertificateGrantOrgan'],
+                                    particular['rows'][0]['ownerName'],
 
-                                  particular['rows'][0]['certificateInfo'][0]['licenseCode'],
-                                  particular['rows'][0]['certificateInfo'][0]['expireDate'],
-                                  particular['rows'][0]['operatingStatus'],
-                                  particular['rows'][0]['certificateInfo'][0]['businessScopeDesc'],
-                                  particular['rows'][0]['certificateInfo'][0]['licenseIssueOrgan']
-                                  ]
+                                    particular['rows'][0]['certificateInfo'][0]['licenseCode'],
+                                    particular['rows'][0]['certificateInfo'][0]['expireDate'],
+                                    particular['rows'][0]['operatingStatus'],
+                                    particular['rows'][0]['certificateInfo'][0]['businessScopeDesc'],
+                                    particular['rows'][0]['certificateInfo'][0]['licenseIssueOrgan']
+                                    ]
+                            else:
+                                tr = [content['rows'][count]['vehicleNo'],
+                                    content['rows'][count]['certificateInfo'][0]['transCertificateCode'],
+                                    content['rows'][count]['certificateInfo'][0]['certificateExpireDate'],
+                                    content['rows'][count]['businessState'],
+                                    content['rows'][count]['certificateInfo'][0]['businessScopeDesc'],
+                                    content['rows'][count]['certificateInfo'][0]['transCertificateGrantOrgan'],
+                                    particular['rows'][0]['ownerName'],
+                                    'None',
+                                    'None',
+                                    particular['rows'][0]['operatingStatus'],
+                                    'None',
+                                    'None'
+                                    ]
                         else:
                             tr = [content['rows'][count]['vehicleNo'],
                                   content['rows'][count]['certificateInfo'][0]['transCertificateCode'],
@@ -204,9 +219,6 @@ class OutPut:
             else:            
                 tr = [content["vehicleNo"], 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None']
                 [sheet.write(i+1, j, tr[j]) for j in range(col_num)]
-            # 输出进程信息
-            print('\r', "正在写入，进程为{0:>3d}/{1:>3d}, 进度为{2:>6.2f}%".format(i + 1, contents_num, (i + 1) * 100 / contents_num), end='', flush=True)
-        print("\n")
         workbook.save('结果-{0}.xls'.format(datetime.now().strftime('%Y%m%d-%H%M%S')))
 
     def output_old_xls(self, target_mark="预处理"):
