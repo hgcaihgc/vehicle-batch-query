@@ -3,8 +3,6 @@
 *.spec
 *.exe
 *.txt
-
-
 /__pycache__/
 /build/
 /dist/
