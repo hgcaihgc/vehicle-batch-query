@@ -98,21 +98,22 @@ def search_by_vehicleNo(vehicleNo, cookie, plateColor):
         'page': '1',
         'rows': '10'
         }
-    headers = {
+    headers = {        
         'Accept': 'application/json, text/javascript, */*; q=0.01',
         'Accept-Encoding': 'gzip, deflate',
         'Accept-Language': 'zh-CN,zh;q=0.9',
         'Connection': 'keep-alive',
+        'Content-Length': '156',
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
         'Cookie': cookie,
         'Host': '10.100.32.31:8138',
         'Origin': 'http://10.100.32.31:8138',
         'Referer': 'http://10.100.32.31:8138/SQS/SQS/communal/iframe/frameProvinceVehicle.html',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         'X-Requested-With': 'XMLHttpRequest'
         }
     # 获取请求的响应
-    r = requests.post(url, data=From_data, headers=headers, timeout=1)
+    r = requests.post(url, data=From_data, headers=headers, timeout=10)
     # 获取响应中的json内容
     content = json.loads(r.text)
     # 在响应中添加车牌号码
@@ -143,7 +144,7 @@ def get_particulars(content, cookie):
             'X-Requested-With': 'XMLHttpRequest'
             }
         # 获取请求的响应
-        r = requests.post(url, data=From_data, headers=headers, timeout=1)
+        r = requests.post(url, data=From_data, headers=headers, timeout=10)
         # 获取响应中的json内容
         particulars = json.loads(r.text)
         return particulars

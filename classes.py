@@ -9,6 +9,7 @@ from selenium import webdriver
 from xlutils.copy import copy
 from functions import get_vehicleNos_from_workbook, confirm_vehicleNo_index
 from functions import search_by_vehicleNo, simplify_content, get_particulars
+from selenium.webdriver.chrome.options import Options
 
 
 class GetVehicleNos:
@@ -54,8 +55,12 @@ class LoginAndSearch:
         """模拟登陆，获取cookie"""
         print("="*100)
         print("开始登陆。")
-        driver = webdriver.Chrome()  # 调用webdriver模块下的Chrome()类并赋值给变量driver        
-        driver.implicitly_wait(5)  # 设置隐式等待时间5s        
+        # 创建一个参数对象，用来控制chrome以无界面模式打开
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-gpu')
+        driver = webdriver.Chrome(chrome_options=chrome_options)  # 调用webdriver模块下的Chrome()类并赋值给变量driver，无界面模式        
+        driver.implicitly_wait(10)  # 设置隐式等待时间10s        
         driver.get(self.address)  # 直接进入指定页面，自动跳转到登录页面        
         driver.find_element_by_id("username").send_keys(self.username)  # 输入账号        
         driver.find_element_by_id("password").send_keys(self.password)  # 输入密码
@@ -84,10 +89,11 @@ class LoginAndSearch:
         while vehicle_new:
             count = 1  # 尝试连接的次数，初始化为0
             vehicleNo = vehicle_new[-1]
+            sleep(1)
             while True:  #
                 print('\r', message_progress.format(vehicleNo, count, i, vehicle_num, i*100/vehicle_num), end='', flush=True)  # 输出进程信息
                 try:
-                    content = search_by_vehicleNo(vehicleNo, cookie, self.plateColor)   # 通过车牌号码查询                    
+                    content = search_by_vehicleNo(vehicleNo, cookie, self.plateColor)   # 通过车牌号码查询                  
                     content = simplify_content(content)  # 简化查询结果，主要是针对有读条记录的查询结果选择一个最新的
                     particular = get_particulars(content, cookie)  # 查询详情                    
                     contents.append(content)  # 将查询结果加入到结果列表
@@ -99,8 +105,8 @@ class LoginAndSearch:
                 except requests.exceptions.RequestException:  # 获取异常,查询异常时，如网速过慢超时
                     count += 1  # 查询次数加1
                     total_count += 1
-                    sleep(0.5)
-                    if count > 99:
+                    sleep(5)
+                    if count > 20:
                         sys.exit("网络不畅，请稍后再试！")
         print("\n", end='')
         print("查询结束。本次查询{0:>4d}辆车，共查询{1:>4d}次，平均每车查询{2:>4.2f}次。".format(vehicle_num, total_count, total_count/vehicle_num))
@@ -198,7 +204,6 @@ class OutPut:
         workbook.save('结果-{0}.xls'.format(datetime.now().strftime('%Y%m%d-%H%M%S')))
         print("\n", end='')
         print("写入完成。")
-
 
     def output_old_xls(self, target_mark="预处理"):
         """将最后结果输出到原xls文件，只有在只有一个xls文件时才适用"""
