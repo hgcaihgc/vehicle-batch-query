@@ -113,7 +113,7 @@ def search_by_vehicleNo(vehicleNo, cookie, plateColor):
         'X-Requested-With': 'XMLHttpRequest'
         }
     # 获取请求的响应
-    r = requests.post(url, data=From_data, headers=headers, timeout=10)
+    r = requests.post(url, data=From_data, headers=headers, timeout=60)
     # 获取响应中的json内容
     content = json.loads(r.text)
     # 在响应中添加车牌号码
@@ -144,7 +144,7 @@ def get_particulars(content, cookie):
             'X-Requested-With': 'XMLHttpRequest'
             }
         # 获取请求的响应
-        r = requests.post(url, data=From_data, headers=headers, timeout=10)
+        r = requests.post(url, data=From_data, headers=headers, timeout=60)
         # 获取响应中的json内容
         particulars = json.loads(r.text)
         return particulars
