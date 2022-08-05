@@ -56,13 +56,14 @@ class LoginAndSearch:
         print("="*100)
         print("开始登陆。")
         # 创建一个参数对象，用来控制chrome以无界面模式打开
-        chrome_options = Options()
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--disable-gpu')
-        driver = webdriver.Chrome(chrome_options=chrome_options)  # 调用webdriver模块下的Chrome()类并赋值给变量driver，无界面模式        
+        # chrome_options = Options()
+        # chrome_options.add_argument('--headless')
+        # chrome_options.add_argument('--disable-gpu')
+        # driver = webdriver.Chrome(chrome_options=chrome_options)  # 调用webdriver模块下的Chrome()类并赋值给变量driver，无界面模式
+        driver = webdriver.Chrome()
         driver.implicitly_wait(10)  # 设置隐式等待时间10s        
         driver.get(self.address)  # 直接进入指定页面，自动跳转到登录页面        
-        driver.find_element_by_id("username").send_keys(self.username)  # 输入账号        
+        driver.find_element_by_id("username").send_keys(self.username)  # 输入账号
         driver.find_element_by_id("password").send_keys(self.password)  # 输入密码
         sleep(0.5)  # 暂停0.5s
         driver.find_element_by_id("login-Button").click()  # 点击登录

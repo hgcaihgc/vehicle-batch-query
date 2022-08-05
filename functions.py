@@ -182,7 +182,8 @@ def simplify_content(content):
         # 状态为营运的信息条数为0
         if len(operating_state_count) == 0:
             # 有效期止时间最迟的索引号
-            count = certificateExpireDate.index(max(certificateExpireDate))
+            # count = certificateExpireDate.index(max(certificateExpireDate))
+            count = 0
         # 状态为营运的信息条数为1
         elif len(operating_state_count) == 1:
             # 索引号
